@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Classifier</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f9f9f9;
+    }
+
+    .upload-container {
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .browse-button {
+      border: 2px dashed #9e9e9e;
+      border-radius: 8px;
+      padding: 50px;
+      background-color: #f8f8f8;
+      cursor: pointer;
+      font-size: 60px;
+      color: lightgrey;
+    }
+
+    .browse-button:hover {
+      background-color: #f1f1f1;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: -15px;
+    }
+
+    .buttons button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .cancel-button {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+
+    .cancel-button:hover {
+      background-color: #e1e1e1;
+    }
+
+    .upload-button {
+      background-color: #5b5bff;
+      color: #fff;
+    }
+
+    .upload-button:hover {
+      background-color: #4a4ae6;
+    }
+
+    .file-info {
+      font-size: 12px;
+      color: #999;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #result {
+      font-size: 25px;
+      color: #333;
+      margin-bottom: -5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Image Classifier</h1>
+  <div class="upload-container">
+    <label for="file-input" class="browse-button">Browse files</label>
+    <input type="file" id="file-input" accept=".jpg, .png, .jpeg" />
+    <p class="file-info">Only supports .jpg, jpeg and .png files</p>
+    <div class="buttons">
+      <button class="cancel-button" onclick="cancelUpload()">Cancel</button>
+      <button class="upload-button" onclick="uploadImage()">Upload</button>
+    </div>
+    <p id="result" class="file-info"></p>
+  </div>
+  <script>
+    const fileInput = document.getElementById('file-input');
+
+    fileInput.addEventListener('change', (event) => {
+      const selectedFile = event.target.files[0];
+      if (selectedFile) {
+        document.getElementsByClassName('file-info')[0].textContent = `Selected file: ${selectedFile.name}`;
+      } else {
+        document.getElementsByClassName('file-info')[0].textContent = 'No file selected';
+      }
+    });
+
+    async function uploadImage() {
+      const formData = new FormData();
+      const fileInput = document.getElementById('file-input');
+      formData.append('file', fileInput.files[0]);
+
+      const response = await fetch('http://127.0.0.1:5000/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      const result = document.getElementById('result');
+      result.textContent = data.prediction ? `Prediction: ${data.prediction}` : `Error: ${data.error}`;
+    }
+
+    function cancelUpload() {
+      fileInput.value = "";
+      document.getElementById('result').textContent = "";
+      document.getElementsByClassName('file-info')[0].textContent = 'No file selected';
+    }
+  </script>
+</body>
+
+</html>
